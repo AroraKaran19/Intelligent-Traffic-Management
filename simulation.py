@@ -1,16 +1,14 @@
-# LAG
-# NO. OF VEHICLES IN SIGNAL CLASS
-# stops not used
-# DISTRIBUTION
-# BUS TOUCHING ON TURNS
-# Distribution using python class
+"""
+Intelligent Traffic Management System
+Built during: CodeKshetra Hackathon 2024
+Simulation Run
+Made By: Karan Arora, Khushboo, Tulsi Varshney and Sneha Vashistha
+"""
 
-# *** IMAGE XY COOD IS TOP LEFT
 import random
 import math
 import time
 import threading
-# from vehicle_detection import detection
 import pygame
 import sys
 import os
@@ -21,13 +19,12 @@ import os
 #    'threshold':0.3     #minimum confidence factor to create a box, greater than 0.3 good
 # }
 
-# tfnet=TFNet(options)    #READ ABOUT TFNET
 
 # Default values of signal times
-defaultRed = 150
+defaultRed = 180
 defaultYellow = 5
 defaultGreen = 20
-defaultMinimum = 10
+defaultMinimum = 8
 defaultMaximum = 60
 
 signals = []
@@ -40,11 +37,11 @@ nextGreen = (currentGreen+1)%noOfSignals
 currentYellow = 0   # Indicates whether yellow signal is on or off 
 
 # Average times for vehicles to pass the intersection
-carTime = 2
-bikeTime = 1
-rickshawTime = 2.25 
-busTime = 2.5
-truckTime = 2.5
+carTime = 5
+bikeTime = 3
+rickshawTime = 5
+busTime = 8
+truckTime = 8
 
 # Count of cars at a traffic signal
 noOfCars = 0
@@ -57,7 +54,7 @@ noOfLanes = 2
 # Red signal time at which cars will be detected at a signal
 detectionTime = 5
 
-speeds = {'car':2.25, 'bus':1.8, 'truck':1.8, 'rickshaw':2, 'bike':2.5}  # average speeds of vehicles
+speeds = {'car': 1, 'bus': 0.6, 'truck': 0.6, 'rickshaw': 1, 'bike': 1.3}  # average speeds of vehicles
 
 # Coordinates of start
 x = {'right':[0,0,0], 'down':[755,727,697], 'left':[1400,1400,1400], 'up':[602,627,657]}    
@@ -95,7 +92,7 @@ class TrafficSignal:
         self.green = green
         self.minimum = minimum
         self.maximum = maximum
-        self.signalText = "30"
+        self.signalText = "60"
         self.totalGreenTime = 0
         
 class Vehicle(pygame.sprite.Sprite):
@@ -312,9 +309,20 @@ def setTime():
                 elif(vclass=='rickshaw'):
                     noOfRickshaws += 1
     # print(noOfCars)
-    greenTime = math.ceil(((noOfCars*carTime) + (noOfRickshaws*rickshawTime) + (noOfBuses*busTime) + (noOfTrucks*truckTime)+ (noOfBikes*bikeTime))/(noOfLanes+1))
+    # greenTime = math.ceil(((noOfCars*carTime) + (noOfRickshaws*rickshawTime) + (noOfBuses*busTime) + (noOfTrucks*truckTime)+ (noOfBikes*bikeTime))/(noOfLanes+1))
+    noOfBusTruck = noOfBuses + noOfTrucks
+    noOfCarsRickshaw = noOfCars + noOfRickshaws
+    print(f"""
+    Time Generation
+    No of Bus/Truck {noOfBusTruck} : {math.ceil(noOfBusTruck/2)*busTime}
+    No of Cars/Truck {noOfCarsRickshaw} : {math.ceil(noOfCarsRickshaw/2)*carTime}
+    No of Bikes {noOfBikes} : {math.ceil(noOfBikes/4)*bikeTime}
+    Total Time: {math.ceil(noOfBusTruck/2)*busTime + math.ceil(noOfCarsRickshaw/2)*carTime + math.ceil(noOfBikes/4)*bikeTime}
+
+""")
+    greenTime = math.ceil(noOfBusTruck/2)*busTime + math.ceil(noOfCarsRickshaw/2)*carTime + math.ceil(noOfBikes/4)*bikeTime
     # greenTime = math.ceil((noOfVehicles)/noOfLanes) 
-    print('Green Time: ',greenTime)
+    #print('Green Time: ',greenTime)
     if(greenTime<defaultMinimum):
         greenTime = defaultMinimum
     elif(greenTime>defaultMaximum):
@@ -325,7 +333,7 @@ def setTime():
 def repeat():
     global currentGreen, currentYellow, nextGreen
     while(signals[currentGreen].green>0):   # while the timer of current green signal is not zero
-        printStatus()
+        # printLightStatus()
         updateValues()
         if(signals[(currentGreen+1)%(noOfSignals)].red==detectionTime):    # set time of next green signal 
             thread = threading.Thread(name="detection",target=setTime, args=())
@@ -341,7 +349,7 @@ def repeat():
         for vehicle in vehicles[directionNumbers[currentGreen]][i]:
             vehicle.stop = defaultStop[directionNumbers[currentGreen]]
     while(signals[currentGreen].yellow>0):  # while the timer of current yellow signal is not zero
-        printStatus()
+        # printLightStatus()
         updateValues()
         time.sleep(1)
     currentYellow = 0   # set yellow signal off
@@ -357,7 +365,7 @@ def repeat():
     repeat()     
 
 # Print the signal timers on cmd
-def printStatus():                                                                                           
+def printLightStatus():                                                                                           
 	for i in range(0, noOfSignals):
 		if(i==currentGreen):
 			if(currentYellow==0):
@@ -381,7 +389,7 @@ def updateValues():
             signals[i].red-=1
 
 # Generating vehicles in the simulation
-def generateVehicles():
+def VehicleGeneration():
     while(True):
         vehicle_type = random.randint(0,4)
         if(vehicle_type==4):
@@ -416,17 +424,17 @@ def simulationTime():
         time.sleep(1)
         if(timeElapsed==simTime):
             totalVehicles = 0
-            print('Lane-wise Vehicle Counts')
+            # print('Lane-wise Vehicle Counts')
             for i in range(noOfSignals):
-                print('Lane',i+1,':',vehicles[directionNumbers[i]]['crossed'])
+                # print('Lane',i+1,':',vehicles[directionNumbers[i]]['crossed'])
                 totalVehicles += vehicles[directionNumbers[i]]['crossed']
-            print('Total vehicles passed: ',totalVehicles)
-            print('Total time passed: ',timeElapsed)
-            print('No. of vehicles passed per unit time: ',(float(totalVehicles)/float(timeElapsed)))
+            # print('Total vehicles passed: ',totalVehicles)
+            # print('Total time passed: ',timeElapsed)
+            # print('No. of vehicles passed per unit time: ',(float(totalVehicles)/float(timeElapsed)))
             os._exit(1)
     
 
-class Main:
+class RunSimulation:
     thread4 = threading.Thread(name="simulationTime",target=simulationTime, args=()) 
     thread4.daemon = True
     thread4.start()
@@ -456,7 +464,7 @@ class Main:
     greenSignal = pygame.image.load('images/signals/green.png')
     font = pygame.font.Font(None, 30)
 
-    thread3 = threading.Thread(name="generateVehicles",target=generateVehicles, args=())    # Generating vehicles
+    thread3 = threading.Thread(name="VehicleGeneration",target=VehicleGeneration, args=())    # Generating vehicles
     thread3.daemon = True
     thread3.start()
 
@@ -509,6 +517,6 @@ class Main:
             vehicle.move()
         pygame.display.update()
 
-Main()
+RunSimulation()
 
   

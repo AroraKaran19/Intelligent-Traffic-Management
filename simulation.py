@@ -314,10 +314,10 @@ def setTime():
     noOfCarsRickshaw = noOfCars + noOfRickshaws
     print(f"""
     Time Generation
-    No of Bus/Truck {noOfBusTruck} : {math.ceil(noOfBusTruck/2)*busTime}
-    No of Cars/Truck {noOfCarsRickshaw} : {math.ceil(noOfCarsRickshaw/2)*carTime}
-    No of Bikes {noOfBikes} : {math.ceil(noOfBikes/4)*bikeTime}
-    Total Time: {math.ceil(noOfBusTruck/2)*busTime + math.ceil(noOfCarsRickshaw/2)*carTime + math.ceil(noOfBikes/4)*bikeTime}
+    No of Bus/Truck {noOfBusTruck} : {math.ceil(noOfBusTruck/2)*busTime} seconds
+    No of Cars/Truck {noOfCarsRickshaw} : {math.ceil(noOfCarsRickshaw/2)*carTime} seconds
+    No of Bikes {noOfBikes} : {math.ceil(noOfBikes/4)*bikeTime} seconds
+    Total Time: {math.ceil(noOfBusTruck/2)*busTime + math.ceil(noOfCarsRickshaw/2)*carTime + math.ceil(noOfBikes/4)*  bikeTime} seconds
 
 """)
     greenTime = math.ceil(noOfBusTruck/2)*busTime + math.ceil(noOfCarsRickshaw/2)*carTime + math.ceil(noOfBikes/4)*bikeTime

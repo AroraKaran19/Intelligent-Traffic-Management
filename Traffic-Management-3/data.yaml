@@ -1,0 +1,18 @@
+names:
+- 3-Wheeler
+- bike
+- bus
+- car
+- scooty
+- semi-trailer
+- truck
+nc: 7
+roboflow:
+  license: MIT
+  project: traffic-management-1aa8k
+  url: https://universe.roboflow.com/teamphoenix/traffic-management-1aa8k/dataset/3
+  version: 3
+  workspace: teamphoenix
+test: ../test/images
+train: Traffic-Management-3/train/images
+val: Traffic-Management-3/valid/images
